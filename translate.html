@@ -1,0 +1,149 @@
+{% extends "layout.html" %}
+
+{% block title %}文本翻译{% endblock %}
+
+{% block style %}
+    /* 文本翻译特定样式 */
+    .translate-container {
+        background-color: #ffffff; /* 白色背景 */
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        max-width: 600px; /* 设置最大宽度 */
+        width: 100%; /* 使容器宽度自适应 */
+        margin: 20px auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* 垂直居中对齐内容 */
+    }
+    textarea {
+        width: 100%; /* 使输入框宽度自适应 */
+        max-width: 600px; /* 设置最大宽度 */
+        height: 100px; /* 设置高度 */
+        border: 1px solid #00796b; /* 深绿色边框 */
+        border-radius: 4px;
+        padding: 10px;
+        resize: none; /* 禁止调整大小 */
+        box-sizing: border-box; /* 包括边框和内边距 */
+        margin-bottom: 10px; /* 输入框与按钮之间的间距 */
+    }
+    .button-container {
+        display: flex; /* 使用 Flexbox 对齐按钮 */
+        justify-content: flex-start; /* 将按钮对齐到左侧 */
+        gap: 10px; /* 按钮之间的间距 */
+        width: 100%; /* 使按钮容器宽度自适应 */
+    }
+    button {
+        background-color: #00796b; /* 深绿色按钮 */
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 10px 15px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+        width: auto; /* 按钮宽度自适应内容 */
+    }
+    button:hover {
+        background-color: #004d40; /* 更深的绿色 */
+    }
+    .result-container {
+        margin-top: 20px; /* 翻译结果与按钮之间的间距 */
+        width: 584px;
+        height: 300px;
+        overflow-y: auto;
+        padding: 10px;
+        border: 1px solid #00796b; /* 深绿色边框 */
+        border-radius: 4px;
+        background-color: #f0f8ff; /* 浅蓝色背景 */
+        color: #333; /* 深色字体 */
+        font-size: 14px; /* 增加字体大小 */
+        line-height: 1.5; /* 增加行高 */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+    }
+    .error-message {
+        color: red; /* 错误消息为红色 */
+        margin-bottom: 10px; /* 错误消息与其他内容之间的间距 */
+    }
+
+    @media (max-width: 600px) {
+        .translate-container {
+            height: auto; /* 在小屏幕上自动调整高度 */
+        }
+    }
+{% endblock %}
+
+{% block content %}
+<h1>文本翻译</h1>
+<div class="translate-container">
+    <div class="error-message" id="error-message" style="display: none;"></div>
+    <textarea id="text-to-translate" placeholder="输入要翻译的文本..."></textarea>
+    <div class="button-container">
+        <button id="translate-button">翻译</button>
+        <select id="language-select">
+            <option value="zh-cn" selected>zh-cn</option>
+            <option value="en">en</option>
+        </select>
+        <button id="copy-button">复制翻译结果</button>
+    </div>
+    <div class="result-container" id="result-container">
+        <div id="result-text"></div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('text-to-translate').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') { // 检查是否按下回车键
+            if (!event.shiftKey) { // 如果没有按下 Shift 键
+                event.preventDefault(); // 阻止默认换行行为
+                document.getElementById('translate-button').click(); // 触发翻译按钮的点击事件
+            }
+            // 如果按下了 Shift 键，则允许换行
+        }
+    });
+
+    document.getElementById('translate-button').addEventListener('click', function(event) {
+        event.preventDefault();
+        const textToTranslate = document.getElementById('text-to-translate').value.trim();
+        if (!textToTranslate) {
+            return;
+        }
+        document.getElementById('error-message').style.display = 'none';
+        document.getElementById('error-message').innerText = '';
+
+        const selectedLanguage = document.getElementById('language-select').value;
+        fetch('/translate_text', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: textToTranslate, lang: selectedLanguage })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.translated_text) {
+                document.getElementById('result-text').innerText = data.translated_text;
+                document.getElementById('result-container').style.display = 'block';
+                document.getElementById('copy-button').style.display = 'inline';
+            } else {
+                document.getElementById('error-message').innerText = data.error || '翻译失败，请重试。';
+                document.getElementById('error-message').style.display = 'block';
+            }
+        })
+        .catch(error => {
+            document.getElementById('error-message').innerText = '翻译请求失败，请检查网络连接。';
+            document.getElementById('error-message').style.display = 'block';
+            console.error('翻译请求失败:', error);
+        });
+    });
+
+    document.getElementById('copy-button').addEventListener('click', function(event) {
+        event.preventDefault();
+        const resultText = document.getElementById('result-text').innerText;
+        if (!resultText) {
+            return;
+        }
+        navigator.clipboard.writeText(resultText);
+    });
+</script>
+{% endblock %}
