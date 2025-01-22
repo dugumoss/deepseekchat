@@ -107,6 +107,10 @@
             event.preventDefault(); // 阻止默认提交行为
             const formData = new FormData(this);
 
+            // 清空下载链接信息
+            document.getElementById('link').href = ''; // 清空链接
+            document.getElementById('download-link').style.display = 'none'; // 隐藏下载链接区域
+
             // 检查是否选择了文件
             if (fileInput.files.length === 0) {
                 alert('请上传一个字幕文件。'); // 弹出提示框

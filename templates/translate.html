@@ -92,6 +92,16 @@
 </div>
 
 <script>
+    document.getElementById('text-to-translate').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') { // 检查是否按下回车键
+            if (!event.shiftKey) { // 如果没有按下 Shift 键
+                event.preventDefault(); // 阻止默认换行行为
+                document.getElementById('translate-button').click(); // 触发翻译按钮的点击事件
+            }
+            // 如果按下了 Shift 键，则允许换行
+        }
+    });
+
     document.getElementById('translate-button').addEventListener('click', function(event) {
         event.preventDefault();
         const textToTranslate = document.getElementById('text-to-translate').value.trim();
@@ -133,11 +143,7 @@
         if (!resultText) {
             return;
         }
-        navigator.clipboard.writeText(resultText).then(() => {
-            alert('翻译结果已复制到剪贴板！');
-        }).catch(err => {
-            console.error('复制失败:', err);
-        });
+        navigator.clipboard.writeText(resultText);
     });
 </script>
 {% endblock %}
