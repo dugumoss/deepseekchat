@@ -1,6 +1,7 @@
 from openai import OpenAI
 
-api_key = "{输入你的API key}"  # 用于存储 API Key
+
+api_key = "{请输入你的API key}"  # 用于存储 API Key
 selected_model = "deepseek-chat"  # 默认模型
 api_url = "https://api.deepseek.com"  # DeepSeek API URL
 
@@ -25,7 +26,7 @@ class DeepSeekChat:
             f"You are a professional subtitle translator. Translate the following text into natural and fluent language. "
             f"Use the provided context to optimize phrasing, but do not include it in the output. If needed, adjust sentence segmentation for readability, but avoid altering the original meaning or creating overly long sentences. "
             f"For ambiguous terms, prioritize the meaning that best fits the context. Output only the translated result, without additional explanations or notes. "
-            f"**Ensure the translation does not contain any punctuation marks, as subtitles typically do not use them.** If the content violates safety standards, provide a compliant translation.")
+            f"**Ensure no punctuation is included in the translation as subtitles typically use spaces instead of commas for pauses.**")
 
         src_lang = "Auto Detect"
         # dst_lang = "zh-cn"
@@ -41,8 +42,7 @@ class DeepSeekChat:
         prompt = (
             f"You are a professional translator. Translate the following text into natural and fluent language. "
             f"Use the provided context to optimize phrasing, but do not include it in the output. If needed, adjust sentence segmentation for readability, but avoid altering the original meaning or creating overly long sentences. "
-            f"For ambiguous terms, prioritize the meaning that best fits the context. Output only the translated result, without additional explanations or notes. "
-            f"** If the content violates safety standards, provide a compliant translation.")
+            f"For ambiguous terms, prioritize the meaning that best fits the context. Output only the translated result, without additional explanations or notes. ")
 
         src_lang = "Auto Detect"
         # dst_lang = "zh-cn"
@@ -57,7 +57,6 @@ class DeepSeekChat:
         self.results = []
 
     def deepseek_to_chat(self, content, msType: str, dstLang: str = 'zh-cn') -> str:
-        print(f"deepseek_to_chat: {content}, {msType}, {dstLang}")
         if self.current_mstype is None:
             self.clear()
             self.current_mstype = msType
